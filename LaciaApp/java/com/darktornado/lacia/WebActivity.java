@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -82,7 +83,9 @@ public class WebActivity extends AppCompatActivity {
         webSet.setBuiltInZoomControls(Lacia.loadSettings("useZoom"));
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient());
-        if (data == null) web.loadUrl("https://www.naver.com");
+        Uri url = intent.getData();
+        if (url != null) web.loadUrl(url.toString());
+        else if (data == null) web.loadUrl("https://www.naver.com");
         else web.loadUrl("https://m.search.naver.com/search.naver?query=" + data);
         layout.addView(web);
 
