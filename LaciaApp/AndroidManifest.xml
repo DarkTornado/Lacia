@@ -10,6 +10,17 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.faketouch"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -22,19 +33,36 @@
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation|screenSize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WebActivity" />
-        <activity android:name=".MetroActivity" />
-        <activity android:name=".MusicActivity" />
-        <activity android:name=".CalendarActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".LicenseActivity" />
+        <activity android:name=".WebActivity"
+            android:configChanges="orientation|screenSize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MetroActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity android:name=".MusicActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity android:name=".CalendarActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity android:name=".SettingsActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity android:name=".LicenseActivity"
+            android:configChanges="orientation|screenSize" />
 
         <service android:name=".MainService" />
         <service android:name=".MusicService" />
