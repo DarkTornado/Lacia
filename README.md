@@ -2,6 +2,8 @@
 
 © 2019 Dark Tornado, All rights reserved.
 
+<img src='https://raw.githubusercontent.com/DarkTornado/Lacia/master/LaciaImage.png'>
+
 ### 개요
  - Lacia는 '라시아'라고 읽습니다.
  - 오픈 소스 인공지능 비서 앱으로, Nusty(너스티)의 하위호환~~아니면 경량화~~ 버전이라고도 볼 수 있습니다.
