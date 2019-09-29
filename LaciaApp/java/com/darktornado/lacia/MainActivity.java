@@ -460,6 +460,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     break;
+                case "번역":
+                case "번역기":
+                    startActivity(new Intent(MainActivity.this, Translator.class));
+                    break;
                 case "잘가":
                 case "종료":
                     say("그럼 난 갈께.");
