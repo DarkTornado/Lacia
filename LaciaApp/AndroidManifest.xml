@@ -33,16 +33,18 @@
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
 
-        <activity android:name=".MainActivity"
-            android:configChanges="orientation|screenSize" >
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WebActivity"
-            android:configChanges="orientation|screenSize" >
+        <activity
+            android:name=".WebActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -53,15 +55,20 @@
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name=".MetroActivity"
+        <activity
+            android:name=".MetroActivity"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".MusicActivity"
+        <activity
+            android:name=".MusicActivity"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".CalendarActivity"
+        <activity
+            android:name=".CalendarActivity"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".LicenseActivity"
+        <activity
+            android:name=".LicenseActivity"
             android:configChanges="orientation|screenSize" />
 
         <service android:name=".MainService" />
@@ -75,6 +82,8 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".Translator"
+            android:configChanges="orientation|screenSize" />
     </application>
 
 </manifest>
