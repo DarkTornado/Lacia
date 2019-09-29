@@ -450,6 +450,11 @@ public class MainService extends Service {
                         }
                     }
                     break;
+                case "번역":
+                case "번역기":
+                    say("번역기를 실행합니다.");
+                    openActivity(Translator.class);
+                    break;
                 default:
                     String reply = Lacia.getReply(chatData, msg);
                     if(reply==null) say("무슨 말인지 잘 모르겠어요.");
