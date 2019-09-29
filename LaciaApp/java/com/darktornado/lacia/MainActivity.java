@@ -462,6 +462,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case "번역":
                 case "번역기":
+                    say("번역기를 실행합니다.");
                     startActivity(new Intent(MainActivity.this, Translator.class));
                     break;
                 case "잘가":
