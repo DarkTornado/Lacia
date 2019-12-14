@@ -1,6 +1,7 @@
 package com.darktornado.lacia;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -29,43 +31,47 @@ public class MusicActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         layout0.addView(toolbar);
 
-        Button stop = new Button(this);
-        stop.setText("음악 정지");
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                stopService(new Intent(MusicActivity.this, MusicService.class));
-            }
-        });
-        layout.addView(stop);
-
         final String[] music = Lacia.getAllAudio(this);
-        Arrays.sort(music);
-        String[] names = new String[music.length];
-        for(int n=0;n<music.length;n++){
-            names[n] = new File(music[n]).getName();
-        }
-        ListView list = new ListView(this);
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, names);
-        list.setAdapter(adapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
-                Intent intent = new Intent(getApplicationContext(), MusicService.class);
-                intent.putExtra("music", music[pos]);
-                startService(intent);
+        if (music == null) {
+            TextView txt = new TextView(this);
+            txt.setText("기기에서 음악 파일들을 찾을 수 없습니다.");
+            txt.setTextSize(18);
+            txt.setTextColor(Color.BLACK);
+            layout.addView(txt);
+        } else {
+            Button stop = new Button(this);
+            stop.setText("음악 정지");
+            stop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    stopService(new Intent(MusicActivity.this, MusicService.class));
+                }
+            });
+            layout.addView(stop);
+            Arrays.sort(music);
+            String[] names = new String[music.length];
+            for (int n = 0; n < music.length; n++) {
+                names[n] = new File(music[n]).getName();
             }
-        });
-        int pad = dip2px(5);
-        list.setPadding(pad, dip2px(15), pad, pad);
-        layout.addView(list);
-        pad = dip2px(20);
+            ListView list = new ListView(this);
+            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, names);
+            list.setAdapter(adapter);
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+                    Intent intent = new Intent(getApplicationContext(), MusicService.class);
+                    intent.putExtra("music", music[pos]);
+                    startService(intent);
+                }
+            });
+            int pad = dip2px(5);
+            list.setPadding(pad, dip2px(15), pad, pad);
+            layout.addView(list);
+        }
+        int pad = dip2px(20);
         layout.setPadding(pad, pad, pad, pad);
-
         layout0.addView(layout);
-
         setContentView(layout0);
-
     }
 
     public int dip2px(int dips) {
