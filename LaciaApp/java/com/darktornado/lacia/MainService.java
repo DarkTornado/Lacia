@@ -486,6 +486,15 @@ public class MainService extends Service {
     }
 
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(left!=null){
+            mManager.removeView(left);
+            left = null;
+        }
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
