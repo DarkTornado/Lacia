@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -46,6 +47,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout chats = null;
     String[] chatData = null;
     boolean blockDrawer = false;
+    String[][] appList = null;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -167,6 +170,22 @@ public class MainActivity extends AppCompatActivity {
                 toast("채팅 데이터 로드 완료");
             }
         }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String[][] apps = Lacia.getAllApps(getApplicationContext());
+                    appList = new String[apps.length][];
+                    for (int n = 0; n < apps.length; n++) {
+                        appList[n] = new String[2];
+                        appList[n][0] = apps[n][0];
+                        appList[n][1] = apps[n][1];
+                    }
+                } catch (Exception e) {
+                    toast(e.toString());
+                }
+            }
+        }).start();
         Lacia.initSettings();
     }
 
@@ -200,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
             margin.setMargins(0, 0, 0, dip2px(10));
             maker.setLayoutParams(margin);
             layout.addView(maker);
-            String[] menus = {"대화 내용 삭제", "명령어 목록", "웹 브라우저", "음악 플레이어", "제작자 블로그", "도움말", "환경 설정"};
+            String[] menus = {"대화 내용 삭제", "명령어 목록", "웹 브라우저", "음악 플레이어", "기타 기능", "제작자 블로그", "도움말", "환경 설정"};
             ListView list = new ListView(this);
             ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, menus);
             list.setAdapter(adapter);
@@ -212,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                             chats.removeAllViews();
                             break;
                         case 1:
-                            showDialog("명령어 목록", "- 음악\n- 음악 정지\n- 검색 [검색어]\n- 길찾기\n- 노선도\n- 시간\n- 달력\n- 날씨\n- 종료\n- 와이파이\n- 와이파이 켜\n- 와이파이 꺼");
+                            showDialog("명령어 목록", "- 음악\n- 음악 정지\n- 검색 [검색어]\n- 길찾기\n- 노선도\n- 시간\n- 달력\n- 날씨\n- 종료\n- 와이파이\n- 와이파이 켜\n- 와이파이 꺼\n- 번역\n- 번역기");
                             break;
                         case 2:
                             startActivity(new Intent(getApplicationContext(), WebActivity.class));
@@ -221,14 +240,17 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(new Intent(getApplicationContext(), MusicActivity.class));
                             break;
                         case 4:
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://blog.naver.com/dt3141592")));
+                            miscDialog();
                             break;
                         case 5:
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://blog.naver.com/dt3141592")));
+                            break;
+                        case 6:
                             showDialog("앱 정보 / 도움말", "앱 이름 : Lacia\n버전 : "+Lacia.VERSION+"\n제작자 : Dark Tornado\n라이선스 : LGPL 3.0\n\n" +
                                     " Nusty의 하위호환인 앱이라고 볼 수 있으며, 음성인식을 지원하는 인공지능 비서 앱이라고 보시면 됩니다.\n" +
                                     " 상시 대기 기능이 활성화된 경우, 화면의 왼쪽 위를 터치하시면 Lacia 메뉴가 열립니다.");
                             break;
-                        case 6:
+                        case 7:
                             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
                             intent.putExtra("chat_data", chatData);
                             startActivity(intent);
@@ -373,6 +395,20 @@ public class MainActivity extends AppCompatActivity {
             if(msg.equals("길 찾기")) msg = "길찾기";
             String cmd = msg.split(" ")[0];
             final String data = msg.replaceFirst(cmd+" ", "");
+            if (msg.contains("실행") || msg.contains("켜")) {
+                try {
+                    for (String[] app : appList) {
+                        if (msg.replace(" ", "").contains(app[0].replace(" ", ""))) {
+                            PackageManager pm = getPackageManager();
+                            startActivity(pm.getLaunchIntentForPackage(app[1]));
+                            say(app[0] + " 실행합니다.");
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    toast(e.toString());
+                }
+            }
             Calendar day = Calendar.getInstance();
             switch(cmd) {
                 case "음악":
@@ -608,6 +644,34 @@ public class MainActivity extends AppCompatActivity {
             window.setAnimationStyle(android.R.style.Animation_InputMethod);
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.showAtLocation(getWindow().getDecorView(), Gravity.BOTTOM, 0, dip2px(7));
+        } catch (Exception e) {
+            toast(e.toString());
+        }
+    }
+
+    private void miscDialog() {
+        try {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("기타 기능");
+            String[] menus = {"노선도", "달력", "번역기"};
+            dialog.setItems(menus, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface m, int w) {
+                    switch (w){
+                        case 0:
+                            startActivity(new Intent(MainActivity.this, MetroActivity.class));
+                            break;
+                        case 1:
+                            startActivity(new Intent(MainActivity.this, CalendarActivity.class));
+                            break;
+                        case 2:
+                            startActivity(new Intent(MainActivity.this, Translator.class));
+                            break;
+                    }
+                }
+            });
+            dialog.setNegativeButton("취소", null);
+            dialog.show();
         } catch (Exception e) {
             toast(e.toString());
         }
