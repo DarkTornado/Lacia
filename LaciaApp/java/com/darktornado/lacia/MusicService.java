@@ -21,12 +21,12 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
-            Notification.Builder noti = new Notification.Builder(this);
+            Notification.Builder noti = Lacia.createNotifation(this, Lacia.NOTI_CHANNEL_MAIN, "Lacia Music Service");
             noti.setSmallIcon(R.mipmap.icon);
             noti.setContentTitle("Lacia Music Player");
             noti.setContentText("Music is Playing...");
             noti.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MusicActivity.class), 0));
-            startForeground(2, noti.build());
+            startForeground(Lacia.NOTI_ID_MUSIC_SERVICE, noti.build());
             randomMusic(intent.getStringExtra("music"));
         } catch (Exception e) {
             toast(e.toString());
@@ -34,13 +34,13 @@ public class MusicService extends Service {
         return START_NOT_STICKY;
     }
 
-    private void randomMusic(String music){
-        try{
+    private void randomMusic(String music) {
+        try {
             String[] musics = Lacia.getAllAudio(this);
-            if(musics==null){
+            if (musics == null) {
                 toast("기기에서 음악 파일을 찾을 수 없습니다.");
             } else {
-                if(music==null) music = musics[(int) Math.floor(Math.random() * musics.length)];
+                if (music == null) music = musics[(int) Math.floor(Math.random() * musics.length)];
                 media.reset();
                 media.setDataSource(music);
                 media.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -52,7 +52,7 @@ public class MusicService extends Service {
                 media.prepare();
                 media.start();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             toast(e.toString());
         }
     }

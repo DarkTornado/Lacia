@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -81,6 +82,11 @@ public class WebActivity extends AppCompatActivity {
         WebSettings webSet = web.getSettings();
         webSet.setJavaScriptEnabled(Lacia.loadSettings("useJs"));
         webSet.setBuiltInZoomControls(Lacia.loadSettings("useZoom"));
+        webSet.setSupportMultipleWindows(true);
+        webSet.setLoadWithOverviewMode(true);
+        webSet.setDomStorageEnabled(true);
+        webSet.setUseWideViewPort(true);
+        web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         web.setWebChromeClient(new WebChromeClient());
         web.setWebViewClient(new WebViewClient());
         Uri url = intent.getData();
@@ -88,6 +94,8 @@ public class WebActivity extends AppCompatActivity {
         else if (data == null) web.loadUrl("https://www.naver.com");
         else web.loadUrl("https://m.search.naver.com/search.naver?query=" + data);
         layout.addView(web);
+        web.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
 
         layout0.addView(layout);
         setContentView(layout0);
