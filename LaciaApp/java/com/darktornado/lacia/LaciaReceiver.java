@@ -42,7 +42,7 @@ public class LaciaReceiver extends BroadcastReceiver {
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast toast = Toast.makeText(ctx, msg, Toast.LENGTH_LONG);
-                toast.getView().setBackgroundColor(Color.argb(150, 0, 0, 0));
+                toast.getView().setBackgroundColor(Lacia.getColor(190));
                 int pad = dip2px(5);
                 toast.getView().setPadding(pad, pad, pad, pad);
                 toast.show();
