@@ -18,10 +18,9 @@ public class LicenseActivity extends AppCompatActivity {
         layout0.setOrientation(1);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(1);
-        Toolbar toolbar = Lacia.creatTitle(this, "라이선스 정보");
+        Toolbar toolbar = Lacia.creatTitle(this, "Lacia 라이선스 정보 (LGPL 3.0)");
         setSupportActionBar(toolbar);
         layout0.addView(toolbar);
-
 
         final String value = loadLicense();
         TextView txt = new TextView(this);
