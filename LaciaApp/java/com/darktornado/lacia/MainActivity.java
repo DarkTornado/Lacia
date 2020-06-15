@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -134,12 +135,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         chats = layout;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                makeInputButton();
-            }
-        }, 300);
 
         int pad = dip2px(20);
         layout.setPadding(pad, pad, pad, pad);
@@ -148,7 +143,13 @@ public class MainActivity extends AppCompatActivity {
 
         scroll.setPadding(0, 0, 0, dip2px(67));
         scroll.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
-        layout0.addView(scroll);
+
+        FrameLayout layoutf = new FrameLayout(this);
+        layoutf.addView(scroll);
+        layoutf.addView(makeInputButton());
+        layoutf.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
+
+        layout0.addView(layoutf);
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(this.getAssets().open("background.jpg"));
             layout0.setBackgroundDrawable(new BitmapDrawable(bitmap));
@@ -391,10 +392,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showAnswer(String msg) {
-        try{
-            if(msg.equals("길 찾기")) msg = "길찾기";
+        try {
+            if (msg.equals("길 찾기")) msg = "길찾기";
             String cmd = msg.split(" ")[0];
-            final String data = msg.replaceFirst(cmd+" ", "");
+            final String data = msg.replaceFirst(cmd + " ", "");
             if (msg.contains("실행") || msg.contains("켜")) {
                 try {
                     for (String[] app : appList) {
@@ -410,19 +411,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             Calendar day = Calendar.getInstance();
-            switch(cmd) {
+            switch (cmd) {
                 case "음악":
                 case "노래":
-                    if(data.equals("정지")){
+                    if (data.equals("정지")) {
                         stopService(new Intent(this, MusicService.class));
                         say("음악을 정지합니다.");
-                    }else {
+                    } else {
                         startService(new Intent(this, MusicService.class));
                         say("음악을 재생합니다.");
                     }
                     break;
                 case "검색":
-                    say(data+"에 대한 검색결과입니다.");
+                    say(data + "에 대한 검색결과입니다.");
                     new Handler().postDelayed(new Runnable() {
                         public void run() {
                             showWebView(data);
@@ -449,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                     say("달력을 띄웁니다.");
                     break;
                 case "날씨":
-                    if(msg.equals("날씨")) {
+                    if (msg.equals("날씨")) {
                         say("전국 날씨입니다.");
                         new Handler().postDelayed(new Runnable() {
                             public void run() {
@@ -457,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 500);
                     } else {
-                        say(data+"의 날씨 정보입니다.");
+                        say(data + "의 날씨 정보입니다.");
                         new Handler().postDelayed(new Runnable() {
                             public void run() {
                                 new Thread(new Runnable() {
@@ -467,8 +468,8 @@ public class MainActivity extends AppCompatActivity {
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                if(info==null) toast("해당 지역을 찾을 수 없습니다.");
-                                                else showDialog(data+" 날씨 : "+info[0], info[1]);
+                                                if (info == null) toast("해당 지역을 찾을 수 없습니다.");
+                                                else showDialog(data + " 날씨 : " + info[0], info[1]);
                                             }
                                         });
                                     }
@@ -501,6 +502,27 @@ public class MainActivity extends AppCompatActivity {
                     say("번역기를 실행합니다.");
                     startActivity(new Intent(MainActivity.this, Translator.class));
                     break;
+                case "불":
+                case "전등":
+                case "손전등":
+                    if (android.os.Build.VERSION.SDK_INT >= 23) {
+                        CameraManager cm = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+                        if (cm == null) {
+                            toast("기기에 카메라가 없거나, 카메라를 찾을 수 없습니다.");
+                        } else {
+                            String camera = cm.getCameraIdList()[0];
+                            if (data.equals("꺼")) {
+                                cm.setTorchMode(camera, false);
+                                say("손전등을 껐습니다.");
+                            } else {
+                                cm.setTorchMode(camera, true);
+                                say("손전등을 켰습니다.");
+                            }
+                        }
+                    } else {
+                        say("롤리팝 미만에서는 작동하지 않습니다.");
+                    }
+                    break;
                 case "잘가":
                 case "종료":
                     say("그럼 난 갈께.");
@@ -513,12 +535,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 default:
                     String reply = Lacia.getReply(chatData, msg);
-                    if(reply==null) say("무슨 말인지 잘 모르겠어요.");
+                    if (reply == null) say("무슨 말인지 잘 모르겠어요.");
                     else say(reply);
                     break;
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             toast(e.toString());
         }
     }
@@ -612,11 +634,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void makeInputButton() {
+    private TextView makeInputButton() {
+        TextView input = new TextView(this);
         try {
-            final PopupWindow window = new PopupWindow();
-            TextView input = new TextView(this);
-            input.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
+            int size = dip2px(50);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(size, size);
+            params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+            input.setLayoutParams(params);
             input.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -630,23 +654,11 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
             });
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.voice_input);
-            input.setBackgroundDrawable(new BitmapDrawable(bitmap));
-            window.setContentView(input);
-            //window.setFocusable(true);
-            try {
-                //window.setElevation(dip2px(5));
-            } catch (Exception e) {
-                //toast(e.toString());
-            }
-            window.setWidth(dip2px(50));
-            window.setHeight(dip2px(50));
-            window.setAnimationStyle(android.R.style.Animation_InputMethod);
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            window.showAtLocation(getWindow().getDecorView(), Gravity.BOTTOM, 0, dip2px(7));
+            input.setBackgroundResource(R.mipmap.voice_input);
         } catch (Exception e) {
             toast(e.toString());
         }
+        return input;
     }
 
     private void miscDialog() {

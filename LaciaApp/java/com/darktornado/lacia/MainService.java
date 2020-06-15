@@ -1,16 +1,17 @@
 package com.darktornado.lacia;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.camera2.CameraManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +24,6 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -40,12 +40,12 @@ import java.util.Locale;
 
 public class MainService extends Service {
 
-    private LinearLayout layout;
     private WindowManager mManager;
     private TextView left;
     private BitmapDrawable[] icons = new BitmapDrawable[5];
     TextToSpeech tts;
     private String[] chatData = null;
+    String[][] appList = null;
 
     Handler handler;
 
@@ -59,25 +59,16 @@ public class MainService extends Service {
         handler.post(runnable);
     }
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
-            String type = intent.getStringExtra("type");
-            startForeground(1, new Notification());
-            Notification.Builder noti = new Notification.Builder(this);
+            Notification.Builder noti = Lacia.createNotifation(this, Lacia.NOTI_CHANNEL_MAIN, "Lacia Service");
             noti.setSmallIcon(R.mipmap.icon);
             noti.setContentTitle("Lacia");
             noti.setContentText("Lacia is Running...");
             noti.setAutoCancel(true);
-            noti.setOngoing(false);
             noti.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0));
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            Thread.sleep(100);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) nm.notify(1, noti.build());
-            else nm.notify(1, new Notification());
-            Thread.sleep(100);
-            nm.cancel(1);
+            startForeground(Lacia.NOTI_ID_MAIN_SERVICE, noti.build());
             tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
                 @Override
                 public void onInit(int status) {
@@ -90,10 +81,20 @@ public class MainService extends Service {
         mManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         createLeftArea();
         chatData = intent.getStringArrayExtra("chat_data");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String[][] apps = Lacia.getAllApps(MainService.this);
+                appList = new String[apps.length][];
+                for (int n = 0; n < apps.length; n++) {
+                    appList[n] = new String[2];
+                    appList[n][0] = apps[n][0];
+                    appList[n][1] = apps[n][1];
+                }
+            }
+        }).start();
         return START_NOT_STICKY;
     }
-
-
 
     private void createLeftArea() {
         try {
@@ -117,15 +118,10 @@ public class MainService extends Service {
             left = new TextView(this);
             left.setBackgroundColor(Color.argb(0, 0, 0, 0));
             left.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
-            left.setOnTouchListener(new View.OnTouchListener() {
+            left.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent ev) {
-                    switch (ev.getAction()) {
-                        case MotionEvent.ACTION_UP:
-                            openListMenu(Gravity.LEFT, -1);
-                            break;
-                    }
-                    return false;
+                public void onClick(View view) {
+                    openListMenu(Gravity.LEFT, -1);
                 }
             });
 
@@ -364,6 +360,20 @@ public class MainService extends Service {
             String cmd = msg.split(" ")[0];
             final String data = msg.replaceFirst(cmd+" ", "");
             Calendar day = Calendar.getInstance();
+            if (msg.contains("실행") || msg.contains("켜")) {
+                try {
+                    for (String[] app : appList) {
+                        if (msg.replace(" ", "").contains(app[0].replace(" ", ""))) {
+                            PackageManager pm = getPackageManager();
+                            startActivity(pm.getLaunchIntentForPackage(app[1]));
+                            say(app[0] + " 실행합니다.");
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    toast(e.toString());
+                }
+            }
             switch(cmd) {
                 case "음악":
                 case "노래":
@@ -454,6 +464,27 @@ public class MainService extends Service {
                 case "번역기":
                     say("번역기를 실행합니다.");
                     openActivity(Translator.class);
+                    break;
+                case "불":
+                case "전등":
+                case "손전등":
+                    if (android.os.Build.VERSION.SDK_INT >= 23) {
+                        CameraManager cm = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+                        if (cm == null) {
+                            toast("기기에 카메라가 없거나, 카메라를 찾을 수 없습니다.");
+                        } else {
+                            String camera = cm.getCameraIdList()[0];
+                            if (data.equals("꺼")) {
+                                cm.setTorchMode(camera, false);
+                                say("손전등을 껐습니다.");
+                            } else {
+                                cm.setTorchMode(camera, true);
+                                say("손전등을 켰습니다.");
+                            }
+                        }
+                    } else {
+                        say("롤리팝 미만에서는 작동하지 않습니다.");
+                    }
                     break;
                 default:
                     String reply = Lacia.getReply(chatData, msg);
