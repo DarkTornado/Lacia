@@ -29,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,8 +47,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         try {
-            if(blockDrawer) {
+            if (blockDrawer) {
                 toast("Lacia 사용을 위해서는 권한 허용을 먼저 진행해주세요.");
                 return super.onOptionsItemSelected(item);
             }
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
             title.setPadding(dip2px(21), 0, pad, dip2px(6));
             layout.addView(title);
             TextView maker = new TextView(this);
-            maker.setText("ⓒ 2019 Dark Tornado");
+            maker.setText("ⓒ " + Lacia.COPYRIGHT_YEAR + " Dark Tornado");
             maker.setTextSize(12);
             maker.setTextColor(Color.WHITE);
             maker.setBackgroundColor(Lacia.getColor());
@@ -247,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://blog.naver.com/dt3141592")));
                             break;
                         case 6:
-                            showDialog("앱 정보 / 도움말", "앱 이름 : Lacia\n버전 : "+Lacia.VERSION+"\n제작자 : Dark Tornado\n라이선스 : LGPL 3.0\n\n" +
+                            showDialog("앱 정보 / 도움말", "앱 이름 : Lacia\n버전 : " + Lacia.VERSION + "\n제작자 : Dark Tornado\n라이선스 : LGPL 3.0\n\n" +
                                     " Nusty의 하위호환인 앱이라고 볼 수 있으며, 음성인식을 지원하는 인공지능 비서 앱이라고 보시면 됩니다.\n" +
                                     " 상시 대기 기능이 활성화된 경우, 화면의 왼쪽 위를 터치하시면 Lacia 메뉴가 열립니다.");
                             break;
@@ -545,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showWebView(String data){
+    private void showWebView(String data) {
         Intent intent = new Intent(this, WebActivity.class);
         intent.putExtra("data", data);
         startActivity(intent);
@@ -559,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         if (drawer.isDrawerOpen(Gravity.LEFT)) {
             drawer.closeDrawer(Gravity.LEFT);
         } else {
@@ -669,7 +673,7 @@ public class MainActivity extends AppCompatActivity {
             dialog.setItems(menus, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface m, int w) {
-                    switch (w){
+                    switch (w) {
                         case 0:
                             startActivity(new Intent(MainActivity.this, MetroActivity.class));
                             break;
@@ -689,9 +693,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkNoPermission(){
-        if(Build.VERSION.SDK_INT < 23) return false;
-        if(!Settings.canDrawOverlays(this)) return true;
+    private boolean checkNoPermission() {
+        if (Build.VERSION.SDK_INT < 23) return false;
+        if (!Settings.canDrawOverlays(this)) return true;
         return false;
     }
 
@@ -734,7 +738,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 layout.addView(btn2);
-                }
+            }
 
             TextView txt4 = new TextView(this);
             txt4.setText("\n 위에서 언급된 권한들을 허용해주셔야, Nusty가 정상적으로 작동합니다. 권한 악용(?)은 하지 않는데, '위험한 권한' 또는 '매우 위험한 권한'으로 분류되는 것들이라, 몇몇 백신들은 Lacia를 바이러스로 분류할 가능성이 있습니다. 정 의심되신다면, 디컴파일해보세요?\n\n 권한 허용을 하신 뒤에는 Lacia를 다시 시작해주세요.\n");
@@ -756,7 +760,7 @@ public class MainActivity extends AppCompatActivity {
             });
             layout.addView(restart);
             TextView maker = new TextView(this);
-            maker.setText("\nⓒ 2019 Dark Tornado, All rights reserved.\n");
+            maker.setText("\nⓒ " + Lacia.COPYRIGHT_YEAR + " Dark Tornado, All rights reserved.\n");
             maker.setTextSize(13);
             maker.setTextColor(Color.BLACK);
             maker.setGravity(Gravity.CENTER);

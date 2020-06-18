@@ -124,7 +124,7 @@ public class Translator extends AppCompatActivity {
         layout.addView(lay2);
 
         TextView maker = new TextView(this);
-        maker.setText("\n© 2019 Dark Tornado, All rights reserved.\n");
+        maker.setText("\n© " + Lacia.COPYRIGHT_YEAR + " Dark Tornado, All rights reserved.\n");
         maker.setTextSize(13);
         maker.setTextColor(Color.BLACK);
         maker.setGravity(Gravity.CENTER);
@@ -141,17 +141,17 @@ public class Translator extends AppCompatActivity {
         setContentView(layout0);
     }
 
-    private TextView getBlank(){
+    private TextView getBlank() {
         TextView txt = new TextView(this);
         txt.setText(" ");
         txt.setTextSize(16);
         return txt;
     }
 
-    private void translate(String from, String to, String value, EditText txt){
+    private void translate(String from, String to, String value, EditText txt) {
         try {
             HttpClient client = new DefaultHttpClient();
-            HttpGet get = new HttpGet("http://translate.googleapis.com/translate_a/single?client=gtx&sl="+from+"&tl="+to+"&dt=t&q="+ URLEncoder.encode(value, "UTF-8")+"&ie=UTF-8&oe=UTF-8");
+            HttpGet get = new HttpGet("http://translate.googleapis.com/translate_a/single?client=gtx&sl=" + from + "&tl=" + to + "&dt=t&q=" + URLEncoder.encode(value, "UTF-8") + "&ie=UTF-8&oe=UTF-8");
             HttpResponse res = client.execute(get);
             ByteArrayOutputStream content = new ByteArrayOutputStream();
             res.getEntity().writeTo(content);
@@ -164,8 +164,8 @@ public class Translator extends AppCompatActivity {
         }
     }
 
-    private int dip2px(int dips){
-        return (int)Math.ceil(dips*this.getResources().getDisplayMetrics().density);
+    private int dip2px(int dips) {
+        return (int) Math.ceil(dips * this.getResources().getDisplayMetrics().density);
     }
 
     public void toast(final String msg) {
