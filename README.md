@@ -1,6 +1,7 @@
 # Lacia
 
-© 2019 Dark Tornado, All rights reserved.
+### Lacia Sorin in Project S
+© 2019-2020 Dark Tornado, All rights reserved.
 
 <img src='https://raw.githubusercontent.com/DarkTornado/Lacia/master/LaciaImage.png'>
 
@@ -39,6 +40,13 @@
  - Lacia Music Player (음악 플레이어)
 
 ### 업데이트 내역
+ #### 버전 3.2
+  - 안드로이드 8.1 이상에서 상시 대기 기능이 작동하지 않던 오류 수정
+  - 날씨 기능이 작동하지 않던 오류 수정
+  - 수도권 전철 노선도 수정
+  - 부산, 대구, 광주 도시철도 노선도 이미지 교체
+  - 오픈 소스 라이선스 추가
+  
  #### 버전 3.1
   - 수도권 전철 노선도에 6호선 신내역 개통 반영
   
