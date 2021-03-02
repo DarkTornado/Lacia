@@ -1,14 +1,14 @@
 # Lacia
 
-### Lacia Sorin in Project S
-© 2019-2020 Dark Tornado, All rights reserved.
+### Project S - Lacia Sorin
+© 2019-2021 Dark Tornado, All rights reserved.
 
 <img src='https://raw.githubusercontent.com/DarkTornado/Lacia/master/LaciaImage.png'>
 
 ### 개요
- - Lacia는 '라시아'라고 읽습니다.
+ - Lacia는 `라시아`라고 읽습니다.
  - 오픈 소스 인공지능 비서 앱으로, [Nusty(너스티)](https://play.google.com/store/apps/details?id=com.darktornado.nusty)의 하위호환~~아니면 경량화~~ 버전이라고도 볼 수 있습니다.
- - Lacia.js와는 달리, Project L이 아닌, Project S 소속입니다.
+ - `Lacia.js`와는 달리, `Project L`이 아닌, `Project S` 소속입니다.
  
 ### 라이선스
  - [LGPL 3.0](http://www.gnu.org/licenses/lgpl-3.0.html)이 적용됩니다.
@@ -70,3 +70,9 @@
   
  #### 버전 1.0
   - 최초 버전 출시
+
+### Project S
+* [Nusty](https://play.google.com/store/apps/details?id=com.darktornado.nusty)
+* Nustia
+* Lacia
+
