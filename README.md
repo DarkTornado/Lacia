@@ -1,6 +1,6 @@
 # Lacia
 
-### Project S - Lacia Sorin
+### [Project S](https://github.com/DarkTornado/ProjectS) - Lacia Sorin
 © 2019-2021 Dark Tornado, All rights reserved.
 
 <img src='https://raw.githubusercontent.com/DarkTornado/Lacia/master/LaciaImage.png'>
@@ -70,9 +70,3 @@
   
  #### 버전 1.0
   - 최초 버전 출시
-
-### Project S
-* [Nusty](https://play.google.com/store/apps/details?id=com.darktornado.nusty)
-* Nustia
-* Lacia
-
