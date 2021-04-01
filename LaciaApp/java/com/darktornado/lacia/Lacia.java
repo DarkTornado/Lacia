@@ -1,4 +1,4 @@
- package com.darktornado.lacia;
+package com.darktornado.lacia;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
