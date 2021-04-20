@@ -33,7 +33,7 @@ import java.util.List;
  public class Lacia {
 
      public static final String VERSION = "3.2";
-     public static final String COPYRIGHT_YEAR = "2019-2020";
+     public static final String COPYRIGHT_YEAR = "2019-2021";
      public static final String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
      public static final String NOTI_CHANNEL_MAIN = "lacia_main_channel";
      public static final int NOTI_ID_MAIN_SERVICE = 1;
