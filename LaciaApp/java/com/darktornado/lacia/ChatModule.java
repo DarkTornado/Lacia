@@ -16,7 +16,7 @@ public class ChatModule {
     }
 
     public String[] getResult() {
-        ArrayList<String> chats = new ArrayList<String>();
+        ArrayList<String> chats = new ArrayList<>();
         String[] input = this.input.split(" ");
         int max = 1;
         for (int n = 0; n < data.length - 1; n++) {

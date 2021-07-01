@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -147,6 +146,18 @@ public class WebActivity extends AppCompatActivity {
         } catch (Exception e) {
             toast(e.toString());
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        web.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        web.onPause();
     }
 
     @Override

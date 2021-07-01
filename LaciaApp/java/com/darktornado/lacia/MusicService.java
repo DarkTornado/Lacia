@@ -4,7 +4,9 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
@@ -23,6 +25,9 @@ public class MusicService extends Service {
         try {
             Notification.Builder noti = Lacia.createNotifation(this, Lacia.NOTI_CHANNEL_MAIN, "Lacia Music Service");
             noti.setSmallIcon(R.mipmap.icon);
+            if (Build.VERSION.SDK_INT >= 23) {
+                noti.setLargeIcon(Icon.createWithResource(this, R.mipmap.icon));
+            }
             noti.setContentTitle("Lacia Music Player");
             noti.setContentText("Music is Playing...");
             noti.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MusicActivity.class), 0));

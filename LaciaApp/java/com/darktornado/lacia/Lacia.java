@@ -1,4 +1,4 @@
-package com.darktornado.lacia;
+ package com.darktornado.lacia;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -32,7 +32,7 @@ import java.util.List;
 
  public class Lacia {
 
-     public static final String VERSION = "3.2";
+     public static final String VERSION = "4.0";
      public static final String COPYRIGHT_YEAR = "2019-2021";
      public static final String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
      public static final String NOTI_CHANNEL_MAIN = "lacia_main_channel";
@@ -156,40 +156,6 @@ import java.util.List;
          return null;
      }
 
-     public static String[] getWeather(String pos) {
-         try {
-             Elements data = Jsoup.connect("https://m.search.naver.com/search.naver?query=" + pos.replace(" ", "+") + "+날씨").get().select("div.weather_info");
-             String status = data.select("div.weather_main").get(0).text();
-             Elements temp = data.select("strong");
-             String tempCurrent = temp.get(0).text();
-             String tempMax = temp.get(1).text();
-             String tempMin = temp.get(2).text();
-             String tempWind = temp.get(3).text();
-             Elements table = data.select("span.figure_result");
-             String dust, hum, wind;
-             if (table.size() == 6) {
-                 dust = table.get(1).text();
-                 hum = table.get(4).text();
-                 wind = data.select("span.figure_text").get(5).text() + ", " + table.get(5).text();
-             } else {
-                 dust = table.get(0).text();
-                 hum = table.get(3).text();
-                 wind = data.select("span.figure_text").get(4).text() + ", " + table.get(4).text();
-             }
-             String result = tempCurrent.replace("온도", "온도 : ") + "\n";
-             result += "체감 온도 : " + tempWind + "\n";
-             result += "최고 기온 : " + tempMax + "\n";
-             result += "최저 기온 : " + tempMin + "\n";
-             result += "습도 : " + hum + "%\n";
-             result += "바람 : " + wind + "m/s\n";
-             result += "미세먼지 : " + dust + "μg/m³";
-             return new String[]{status, result.replace("°", "℃")};
-         } catch (Exception e) {
-             //toast(e.toString());
-         }
-         return null;
-     }
-
      private static int dip2px(Context ctx, int dips) {
          return (int) Math.ceil(dips * ctx.getResources().getDisplayMetrics().density);
      }
@@ -215,6 +181,19 @@ import java.util.List;
      }
 
      public static void saveSettings(String name, boolean onoff) {
+         saveData(name, String.valueOf(onoff));
+     }
+
+     public static int getSettings(String name, int defaultSettings) {
+         String data = readData(name);
+         try {
+             return Integer.parseInt(data);
+         } catch (Exception e) {
+             return defaultSettings;
+         }
+     }
+
+     public static void saveSettings(String name, int onoff) {
          saveData(name, String.valueOf(onoff));
      }
 

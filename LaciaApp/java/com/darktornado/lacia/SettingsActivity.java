@@ -2,6 +2,7 @@ package com.darktornado.lacia;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -44,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(layout0);
     }
 
-    private TextView createTitle(String txt){
+    private TextView createTitle(String txt) {
         int pad = dip2px(5);
         TextView title = new TextView(this);
         title.setText(txt);
@@ -55,15 +56,15 @@ public class SettingsActivity extends AppCompatActivity {
         return title;
     }
 
-    private void addWebSettings(LinearLayout layout0){
+    private void addWebSettings(LinearLayout layout0) {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(1);
         int pad = dip2px(10);
         String[] menuS = {"자바스크립트 허용", "줌 인 사용"};
         final String[] bools = {"useJs", "useZoom"};
         Switch[] sws = new Switch[menuS.length];
-        for(int n=0;n<menuS.length;n++){
-            if(n>0){
+        for (int n = 0; n < menuS.length; n++) {
+            if (n > 0) {
                 LineView line = new LineView(this);
                 line.setColor(Color.LTGRAY);
                 layout.addView(line.mv());
@@ -87,15 +88,15 @@ public class SettingsActivity extends AppCompatActivity {
         layout0.addView(layout);
     }
 
-    private void addMiscSettings(LinearLayout layout0){
+    private void addMiscSettings(LinearLayout layout0) {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(1);
         int pad = dip2px(10);
         String[] menuS = {"상시 대기 사용"};
         final String[] bools = {"useWindow"};
         Switch[] sws = new Switch[menuS.length];
-        for(int n=0;n<menuS.length;n++){
-            if(n>0){
+        for (int n = 0; n < menuS.length; n++) {
+            if (n > 0) {
                 LineView line = new LineView(this);
                 line.setColor(Color.LTGRAY);
                 layout.addView(line.mv());
@@ -127,9 +128,9 @@ public class SettingsActivity extends AppCompatActivity {
             layout.addView(sws[n]);
         }
 
-         String[] menus = {"앱 정보 / 도움말", "깃허브", "제작자 블로그", "라이선스 정보"};
+        String[] menus = {"상시 대기 설정", "앱 정보 / 도움말", "깃허브", "제작자 블로그", "라이선스 정보", "오픈 소스 라이선스"};
         TextView[] txts = new TextView[menus.length];
-        for(int n=0;n<menus.length;n++){
+        for (int n = 0; n < menus.length; n++) {
             LineView line = new LineView(this);
             line.setColor(Color.LTGRAY);
             layout.addView(line.mv());
@@ -142,20 +143,26 @@ public class SettingsActivity extends AppCompatActivity {
             txts[n].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    switch(v.getId()){
+                    switch (v.getId()) {
                         case 0:
-                            showDialog("앱 정보 / 도움말", "앱 이름 : Lacia\n버전 : "+Lacia.VERSION+"\n제작자 : Dark Tornado\n라이선스 : LGPL 3.0\n\n" +
+                            touchDialog();
+                            break;
+                        case 1:
+                            showDialog("앱 정보 / 도움말", "앱 이름 : Lacia\n버전 : " + Lacia.VERSION + "\n제작자 : Dark Tornado\n라이선스 : LGPL 3.0\n\n" +
                                     " Nusty의 하위호환인 앱이라고 볼 수 있으며, 음성인식을 지원하는 인공지능 비서 앱이라고 보시면 됩니다.\n" +
                                     " 상시 대기 기능이 활성화된 경우, 화면의 왼쪽 위를 터치하시면 Lacia 메뉴가 열립니다.");
                             break;
-                        case 1:
+                        case 2:
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/DarkTornado/Lacia")));
                             break;
-                        case 2:
+                        case 3:
                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://blog.naver.com/dt3141592")));
                             break;
-                        case 3:
+                        case 4:
                             startActivity(new Intent(SettingsActivity.this, LicenseActivity.class));
+                            break;
+                        case 5:
+                            startActivity(new Intent(SettingsActivity.this, OpenLicenseActivity.class));
                             break;
                     }
                 }
@@ -169,8 +176,28 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
-    private int dip2px(int dips){
-        return (int)Math.ceil(dips*this.getResources().getDisplayMetrics().density);
+    private void touchDialog() {
+        try {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("상시 대기 설정");
+            String[] names = {"양쪽 구석 터치 사용", "왼쪽 구석 터치만 사용", "오른쪽 구석 터치만 사용"};
+            dialog.setItems(names, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Lacia.saveSettings("touchSide", which);
+                    toast("상시 대기 기능을 다시 실행해야 적용됩니다.");
+                }
+            });
+            dialog.setNegativeButton("취소", null);
+            dialog.show();
+        } catch (Exception e) {
+            toast(e.toString());
+        }
+    }
+
+
+    private int dip2px(int dips) {
+        return (int) Math.ceil(dips * this.getResources().getDisplayMetrics().density);
     }
 
     public void showDialog(String title, String msg) {
@@ -189,7 +216,7 @@ public class SettingsActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast toast = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG);
-                toast.getView().setBackgroundColor(Color.argb(150, 0, 0, 0));
+                toast.getView().setBackgroundColor(Lacia.getColor(190));
                 int pad = dip2px(5);
                 toast.getView().setPadding(pad, pad, pad, pad);
                 toast.show();
@@ -197,27 +224,27 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private static class LineView{
+    private static class LineView {
         private TextView txt;
         private Context ctx;
 
-        public LineView(Context ctx){
+        public LineView(Context ctx) {
             this.ctx = ctx;
             txt = new TextView(ctx);
             txt.setWidth(-1);
             txt.setHeight(dip2px(1));
         }
 
-        public void setColor(int color){
+        public void setColor(int color) {
             txt.setBackgroundColor(color);
         }
 
-        public TextView mv(){
+        public TextView mv() {
             return txt;
         }
 
-        private int dip2px(int dips){
-            return (int)Math.ceil(dips*ctx.getResources().getDisplayMetrics().density);
+        private int dip2px(int dips) {
+            return (int) Math.ceil(dips * ctx.getResources().getDisplayMetrics().density);
         }
 
     }

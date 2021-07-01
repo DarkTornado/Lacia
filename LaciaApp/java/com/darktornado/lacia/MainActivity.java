@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -29,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,17 +40,14 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import com.darktornado.utils.*;
+
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -192,6 +187,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
         Lacia.initSettings();
+        if (getIntent().getBooleanExtra("input_start", false)) {
+            inputVoice();
+        }
     }
 
     private LinearLayout createDrawerLayout() {
@@ -277,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    public void inputVoice(final TextView chat) {
+    public void inputVoice() {
         try {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
@@ -463,23 +461,21 @@ public class MainActivity extends AppCompatActivity {
                         }, 500);
                     } else {
                         say(data + "의 날씨 정보입니다.");
-                        new Handler().postDelayed(new Runnable() {
+                        new Thread(new Runnable() {
+                            @Override
                             public void run() {
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final String[] info = Lacia.getWeather(data);
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (info == null) toast("해당 지역을 찾을 수 없습니다.");
-                                                else showDialog(data + " 날씨 : " + info[0], info[1]);
-                                            }
-                                        });
-                                    }
-                                }).start();
+                                WeatherParser wp = new WeatherParser(data);
+                                String result = wp.getData();
+                                if (result == null) {
+                                    toast("해당 지역을 찾을 수 없습니다.");
+                                } else {
+                                    Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
+                                    intent.putExtra("pos", data);
+                                    intent.putExtra("data", result);
+                                    startActivity(intent);
+                                }
                             }
-                        }, 500);
+                        }).start();
                     }
                     break;
                 case "와이파이":
@@ -527,6 +523,12 @@ public class MainActivity extends AppCompatActivity {
                         say("롤리팝 미만에서는 작동하지 않습니다.");
                     }
                     break;
+                case "버스":
+                    say("버스 운행정보를 불러옵니다.");
+                    Intent intent = new Intent(MainActivity.this, BusActivity.class);
+                    intent.putExtra("input", data);
+                    startActivity(intent);
+                    break;
                 case "잘가":
                 case "종료":
                     say("그럼 난 갈께.");
@@ -560,7 +562,6 @@ public class MainActivity extends AppCompatActivity {
         createChatBubble(chat, false);
         tts.speak(chat, TextToSpeech.QUEUE_FLUSH, null);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -648,7 +649,7 @@ public class MainActivity extends AppCompatActivity {
             input.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    inputVoice(null);
+                    inputVoice();
                 }
             });
             input.setOnLongClickListener(new View.OnLongClickListener() {

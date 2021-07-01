@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Icon;
 import android.hardware.camera2.CameraManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -34,6 +36,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.darktornado.library.FakeDialog;
+import com.darktornado.utils.*;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -41,7 +46,7 @@ import java.util.Locale;
 public class MainService extends Service {
 
     private WindowManager mManager;
-    private TextView left;
+    private TextView left, right;
     private BitmapDrawable[] icons = new BitmapDrawable[5];
     TextToSpeech tts;
     private String[] chatData = null;
@@ -64,6 +69,9 @@ public class MainService extends Service {
         try {
             Notification.Builder noti = Lacia.createNotifation(this, Lacia.NOTI_CHANNEL_MAIN, "Lacia Service");
             noti.setSmallIcon(R.mipmap.icon);
+            if (Build.VERSION.SDK_INT >= 23) {
+                noti.setLargeIcon(Icon.createWithResource(this, R.mipmap.icon));
+            }
             noti.setContentTitle("Lacia");
             noti.setContentText("Lacia is Running...");
             noti.setAutoCancel(true);
@@ -79,7 +87,18 @@ public class MainService extends Service {
             toast(e.toString());
         }
         mManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        createLeftArea();
+        switch (Lacia.getSettings("touchSide", 0)) {
+            case 0:
+                createLeftArea();
+                createRightArea();
+                break;
+            case 1:
+                createLeftArea();
+                break;
+            case 2:
+                createRightArea();
+                break;
+        }
         chatData = intent.getStringArrayExtra("chat_data");
         new Thread(new Runnable() {
             @Override
@@ -131,6 +150,41 @@ public class MainService extends Service {
         }
     }
 
+    private void createRightArea() {
+        try {
+            mManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            final WindowManager.LayoutParams mParams;
+            if (Build.VERSION.SDK_INT >= 26) {
+                mParams = new WindowManager.LayoutParams(
+                        dip2px(15), dip2px(22),
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, //2038
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                        PixelFormat.TRANSLUCENT);
+            } else {
+                mParams = new WindowManager.LayoutParams(
+                        dip2px(15), dip2px(22),
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                        PixelFormat.TRANSLUCENT);
+            }
+            mParams.gravity = Gravity.RIGHT | Gravity.TOP;
+            if (right != null) mManager.removeView(right);
+            right = new TextView(this);
+            right.setBackgroundColor(Color.argb(0, 0, 0, 0));
+            right.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
+            right.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openListMenu(Gravity.RIGHT, -1);
+                }
+            });
+
+            mManager.addView(right, mParams);
+        } catch (Exception e) {
+            toast(e.toString());
+        }
+    }
+
     private void openListMenu(int gravity, final int side) {
         try {
             final WindowManager.LayoutParams mParams;
@@ -151,17 +205,21 @@ public class MainService extends Service {
 
             final LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(1);
-            AssetManager am = this.getAssets();
-            String[] images = {"input", "web", "music", "home", "close"};
+            Resources res = getResources();
+            int[] images = {
+                    R.mipmap.input,
+                    R.mipmap.web,
+                    R.mipmap.music,
+                    R.mipmap.home,
+                    R.mipmap.close
+            };
             final TextView[] btns = new TextView[5];
-            int mar = dip2px(5);
-            LinearLayout.LayoutParams margin = new LinearLayout.LayoutParams(dip2px(45), dip2px(45));
-            margin.setMargins(mar, mar, mar, mar);
+            LinearLayout.LayoutParams margin = new LinearLayout.LayoutParams(dip2px(50), dip2px(50));
             for (int n = 0; n < 5; n++) {
                 btns[n] = new TextView(this);
                 if (icons[n] == null) {
-                    icons[n] = new BitmapDrawable(BitmapFactory.decodeStream(am.open("icon/" + images[n] + ".png")));
-                    icons[n].setAlpha(220);
+                    icons[n] = new BitmapDrawable(BitmapFactory.decodeResource(res, images[n]));
+                    icons[n].setAlpha(230);
                 }
                 btns[n].setBackgroundDrawable(icons[n]);
                 btns[n].setId(n);
@@ -422,23 +480,22 @@ public class MainService extends Service {
                         }, 500);
                     } else {
                         say(data+"의 날씨 정보입니다.");
-                        new Handler().postDelayed(new Runnable() {
+                        new Thread(new Runnable() {
+                            @Override
                             public void run() {
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        final String[] info = Lacia.getWeather(data);
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if(info==null) toast("해당 지역을 찾을 수 없습니다.");
-                                                else showDialog(data+" 날씨 : "+info[0], info[1]);
-                                            }
-                                        });
-                                    }
-                                }).start();
+                                WeatherParser wp = new WeatherParser(data);
+                                String result = wp.getData();
+                                if (result == null) {
+                                    toast("해당 지역을 찾을 수 없습니다.");
+                                } else {
+                                    Intent intent = new Intent(MainService.this, WeatherActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.putExtra("pos", data);
+                                    intent.putExtra("data", result);
+                                    startActivity(intent);
+                                }
                             }
-                        }, 500);
+                        }).start();
                     }
                     break;
                 case "와이파이":
@@ -516,13 +573,16 @@ public class MainService extends Service {
         tts.speak(chat, TextToSpeech.QUEUE_FLUSH, null);
     }
 
-
     @Override
     public void onDestroy(){
         super.onDestroy();
         if(left!=null){
             mManager.removeView(left);
             left = null;
+        }
+        if(right!=null){
+            mManager.removeView(right);
+            right = null;
         }
     }
 

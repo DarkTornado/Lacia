@@ -34,6 +34,7 @@
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
 
+        <!-- Lacia -->
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize">
@@ -57,19 +58,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MetroActivity"
-            android:configChanges="orientation|screenSize" />
-        <activity
             android:name=".MusicActivity"
             android:configChanges="orientation|screenSize" />
         <activity
-            android:name=".CalendarActivity"
+            android:name=".WeatherActivity"
             android:configChanges="orientation|screenSize" />
         <activity
             android:name=".SettingsActivity"
             android:configChanges="orientation|screenSize" />
         <activity
             android:name=".LicenseActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity
+            android:name=".OpenLicenseActivity"
             android:configChanges="orientation|screenSize" />
 
         <service android:name=".MainService" />
@@ -82,12 +83,27 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".LaciaHomeWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/home_widget_info" />
+        </receiver>
 
+        <!-- Utils -->
         <activity
-            android:name=".Translator"
+            android:name="com.darktornado.utils.Translator"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".OpenLicenseActivity"
-            android:configChanges="orientation|screenSize"/>
+        <activity
+            android:name="com.darktornado.utils.MetroActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity
+            android:name="com.darktornado.utils.CalendarActivity"
+            android:configChanges="orientation|screenSize" />
+        <activity android:name="com.darktornado.utils.BusActivity"
+            android:configChanges="orientation|screenSize" />
     </application>
 
 </manifest>
