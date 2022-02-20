@@ -6,7 +6,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -42,6 +41,8 @@ import com.darktornado.utils.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+
+import kotlin.Pair;
 
 public class MainService extends Service {
 
@@ -483,15 +484,15 @@ public class MainService extends Service {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                WeatherParser wp = new WeatherParser(data);
-                                String result = wp.getData();
+                                WeatherParser wp = new WeatherParser(MainService.this, data);
+                                Pair<String, String> result = wp.parse();
                                 if (result == null) {
                                     toast("해당 지역을 찾을 수 없습니다.");
                                 } else {
                                     Intent intent = new Intent(MainService.this, WeatherActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    intent.putExtra("pos", data);
-                                    intent.putExtra("data", result);
+                                    intent.putExtra("pos", result.getFirst());
+                                    intent.putExtra("data", result.getSecond());
                                     startActivity(intent);
                                 }
                             }

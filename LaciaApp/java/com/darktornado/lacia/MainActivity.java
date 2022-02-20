@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import kotlin.Pair;
+
 public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawer = null;
@@ -464,14 +466,14 @@ public class MainActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                WeatherParser wp = new WeatherParser(data);
-                                String result = wp.getData();
+                                WeatherParser wp = new WeatherParser(MainActivity.this, data);
+                                Pair<String, String> result = wp.parse();
                                 if (result == null) {
                                     toast("해당 지역을 찾을 수 없습니다.");
                                 } else {
                                     Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
-                                    intent.putExtra("pos", data);
-                                    intent.putExtra("data", result);
+                                    intent.putExtra("pos", result.getFirst());
+                                    intent.putExtra("data", result.getSecond());
                                     startActivity(intent);
                                 }
                             }
@@ -558,9 +560,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void say(String chat) {
-        createChatBubble(chat, false);
-        tts.speak(chat, TextToSpeech.QUEUE_FLUSH, null);
+    private void say(final String chat) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                createChatBubble(chat, false);
+                tts.speak(chat, TextToSpeech.QUEUE_FLUSH, null);
+            }
+        });
     }
 
     @Override
