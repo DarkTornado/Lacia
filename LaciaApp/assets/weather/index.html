@@ -33,19 +33,22 @@
         padding: 10px;
         font-weight: bold;
     }
-
 </style>
 
 <body>
-    <center>
-        <table border=0 width=100% id='data_table'>
-            <tr align=center>
-                <td>날씨 정보 불러오는 중...</td>
-            </tr>
-        </table>
-    </center>
+<center>
+    <table border=0 width=100% id='data_table'>
+        <tr align=center>
+            <td>날씨 정보 불러오는 중...</td>
+        </tr>
+    </table>
+</center>
 
-    <script src='./script.js'></script>
+    <script>
+        function applyData(data) {
+            document.getElementById('data_table').innerHTML = data;
+        }
+    </script>
 </body>
 
 </html>
