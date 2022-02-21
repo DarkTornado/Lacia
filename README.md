@@ -1,7 +1,7 @@
 # Lacia
 
 ### [Project S](https://github.com/DarkTornado/ProjectS) - Lacia Sorin
-© 2019-2021 Dark Tornado, All rights reserved.
+© 2019-2022 Dark Tornado, All rights reserved.
 
 <img src='https://raw.githubusercontent.com/DarkTornado/Lacia/master/LaciaImage.png'>
 
